@@ -1059,8 +1059,8 @@ if(contactForm){
 /* ═══════════════════════════════════════════════════
    SUPABASE CONFIG — fill in your values
 ═══════════════════════════════════════════════════ */
-const SUPA_URL  = 'YOUR_SUPABASE_URL';   // ex: https://xxxx.supabase.co
-const SUPA_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+const SUPA_URL = 'https://xxxx.supabase.co';
+const SUPA_KEY = 'eyJhbGci...';;
 const SUPA_READY = SUPA_URL !== 'YOUR_SUPABASE_URL' && SUPA_URL.startsWith('https://');
 const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
