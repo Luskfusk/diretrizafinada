@@ -141,7 +141,7 @@ section{padding:8rem 3rem}
 
 /* FULLBLEED */
 .fullbleed{height:70vh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.fullbleed-bg{position:absolute;inset:0;background-image:url('https://pquxfbbxflqvtidtlrhl.supabase.co/storage/v1/object/public/hmac-uploads/brand/3201b1a9-43a4-4e96-815e-36de9639c4a0/assets/c473fc6a-0a7d-465e-8383-4968596cd812.webp');background-size:cover;background-position:center;filter:brightness(.28) contrast(1.1);transform:scale(1.05)}
+.fullbleed-bg{position:absolute;inset:0;background:#0A0A0A;pointer-events:none}
 .fullbleed-gradient{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.8) 0%,transparent 40%,transparent 60%,rgba(8,8,8,.8) 100%)}
 .fullbleed-content{position:relative;z-index:2;text-align:center;padding:0 2rem}
 .fullbleed-quote{font-family:var(--font-serif);font-size:clamp(1.5rem,3.5vw,3.2rem);font-weight:300;font-style:italic;color:var(--white);max-width:700px;line-height:1.5;margin:0 auto}
@@ -1083,8 +1083,17 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
     } else {
       try {
         const stored = JSON.parse(localStorage.getItem(STORE));
-        if(stored && stored.length) return stored.filter(c=>c.status==='active'||!c.status);
-        // Seed localStorage with defaults if empty
+        if(stored && stored.length){
+          // Check if stored cars have images — if not, re-seed with DEFAULT_CARS
+          const hasImages = stored.some(c => (c.img && c.img.length > 100) || (c.img_url && c.img_url.length > 10));
+          if(!hasImages){
+            // Stale data without photos — replace with DEFAULT_CARS
+            localStorage.setItem(STORE, JSON.stringify(DEFAULT_CARS));
+            return DEFAULT_CARS.filter(c=>c.status==='active'||!c.status);
+          }
+          return stored.filter(c=>c.status==='active'||!c.status);
+        }
+        // Empty — seed with defaults
         localStorage.setItem(STORE, JSON.stringify(DEFAULT_CARS));
         return DEFAULT_CARS.filter(c=>c.status==='active'||!c.status);
       } catch { return DEFAULT_CARS; }
