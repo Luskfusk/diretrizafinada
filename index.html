@@ -1128,75 +1128,48 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   }
 
   async function renderInventory(){
-    try {
     const grid = document.getElementById('invGrid');
     const countEl = document.getElementById('stockCount');
     if(!grid) return;
-
-    // Loading state
     grid.innerHTML = '<div style="padding:2.5rem;text-align:center;color:var(--muted);font-size:.82rem;grid-column:1/-1">A carregar...</div>';
-
-    const all = await fetchCars();
-    const filtered = pubFilter==='all' ? all : all.filter(c=>c.category===pubFilter);
-    if(countEl) countEl.textContent = all.length;
-
-    if(!filtered.length){
-      grid.innerHTML = `<div style="padding:4rem 2rem;text-align:center;grid-column:1/-1">
-        <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:.05em;color:var(--border2);margin-bottom:.8rem">INVENTÁRIO</div>
-        <p style="font-size:.82rem;color:var(--muted)">Nenhum veículo disponível de momento.<br>Consulte-nos para disponibilidade.</p>
-        <a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;border:1px solid var(--border2);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--off);text-decoration:none">Contactar</a>
-      </div>`;
-      return;
-    }
-
-    const delays=['','reveal-delay-1','reveal-delay-2','reveal-delay-3'];
-    grid.innerHTML = filtered.map((c,i)=>{
-      const imgSrc = c.img_url || c.img || '';
-      const imgTag = imgSrc
-        ? `<img class="car-img" src="${imgSrc}" alt="${c.brand} ${c.model}" loading="lazy">`
-        : `<div class="car-img" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><span style="color:var(--muted);font-size:.7rem">${c.brand}</span></div>`;
-      return `
-        <a href="${c.url||'#'}" target="_blank" class="car-card reveal ${delays[i%4]}" data-category="${c.category||'sedan'}" style="text-decoration:none">
-          <div class="car-img-wrap">${imgTag}</div>
-          <div class="car-brand-badge">${c.brand}</div>
-          <div class="car-body">
-            <div class="car-name">${c.model}</div>
-            <div class="car-sub">${c.sub||c.year+' · '+(c.fuel||'Gasolina')}</div>
-            <div class="car-specs">
-              <div class="car-spec"><span class="car-spec-val">${c.cv||'—'}</span><span class="car-spec-key">CV</span></div>
-              <div class="car-spec"><span class="car-spec-val">${c.acc||'—'}</span><span class="car-spec-key">s 0–100</span></div>
-              <div class="car-spec"><span class="car-spec-val">${c.year||'—'}</span><span class="car-spec-key">Ano</span></div>
-              <div class="car-spec"><span class="car-spec-val" style="font-size:.72rem">${c.km||'—'}</span><span class="car-spec-key">KM</span></div>
-            </div>
-            <div class="car-footer">
-              <div class="car-price"><small>Preço</small>€ ${c.price||'—'}</div>
-              <div class="car-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-            </div>
-          </div>
-        </a>`;
-    }).join('');
-
-    const ro = new IntersectionObserver(entries=>{
-      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
-    },{threshold:.1});
-    grid.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
-  }
-
-  function initFilters(){
-    document.querySelectorAll('.filter-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        pubFilter = btn.dataset.filter||'all';
-        renderInventory();
-      });
-    });
-  }
-
-      } catch(e){ 
-      console.warn('Inventory render error:', e.message);
-      const g = document.getElementById('invGrid');
-      if(g) g.innerHTML = '<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.82rem;grid-column:1/-1">Inventário temporariamente indisponível.</div>';
+    try {
+      const all = await fetchCars();
+      const filtered = pubFilter==='all' ? all : all.filter(c=>c.category===pubFilter);
+      if(countEl) countEl.textContent = all.length;
+      if(!filtered.length){
+        grid.innerHTML = '<div style="padding:4rem 2rem;text-align:center;grid-column:1/-1"><div style="font-family:var(--font-display);font-size:2rem;letter-spacing:.05em;color:var(--border2);margin-bottom:.8rem">INVENTÁRIO</div><p style="font-size:.82rem;color:var(--muted)">Nenhum veículo disponível de momento.<br>Consulte-nos para disponibilidade.</p><a href='#contact' style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;border:1px solid var(--border2);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--off);text-decoration:none">Contactar</a></div>';
+        return;
+      }
+      const delays=['','reveal-delay-1','reveal-delay-2','reveal-delay-3'];
+      grid.innerHTML = filtered.map((c,i)=>{
+        const imgSrc = c.img_url || c.img || '';
+        const imgTag = imgSrc
+          ? '<img class="car-img" src="'+imgSrc+'" alt="'+c.brand+' '+c.model+'" loading="lazy">'
+          : '<div class="car-img" style="background:var(--bg3);display:flex;align-items:center;justify-content:center"><span style="color:var(--muted);font-size:.7rem">'+c.brand+'</span></div>';
+        return '<a href="'+(c.url||'#')+'" target="_blank" class="car-card reveal '+delays[i%4]+'" data-category="'+(c.category||'sedan')+'" style="text-decoration:none">'
+          +'<div class="car-img-wrap">'+imgTag+'</div>'
+          +'<div class="car-brand-badge">'+c.brand+'</div>'
+          +'<div class="car-body">'
+          +'<div class="car-name">'+c.model+'</div>'
+          +'<div class="car-sub">'+(c.sub||c.year+' · '+(c.fuel||'Gasolina'))+'</div>'
+          +'<div class="car-specs">'
+          +'<div class="car-spec"><span class="car-spec-val">'+(c.cv||'—')+'</span><span class="car-spec-key">CV</span></div>'
+          +'<div class="car-spec"><span class="car-spec-val">'+(c.acc||'—')+'</span><span class="car-spec-key">s 0–100</span></div>'
+          +'<div class="car-spec"><span class="car-spec-val">'+(c.year||'—')+'</span><span class="car-spec-key">Ano</span></div>'
+          +'<div class="car-spec"><span class="car-spec-val" style="font-size:.72rem">'+(c.km||'—')+'</span><span class="car-spec-key">KM</span></div>'
+          +'</div>'
+          +'<div class="car-footer">'
+          +'<div class="car-price"><small>Preço</small>€ '+(c.price||'—')+'</div>'
+          +'<div class="car-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>'
+          +'</div></div></a>';
+      }).join('');
+      const ro = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+      },{threshold:.1});
+      grid.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+    } catch(e){
+      console.warn('Inventory render error:',e.message);
+      grid.innerHTML = '<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.82rem;grid-column:1/-1">Inventário temporariamente indisponível.</div>';
     }
   }
   window.pubRefreshInventory = renderInventory;
