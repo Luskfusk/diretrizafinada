@@ -1112,11 +1112,13 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   let pubFilter = 'all';
   async function fetchCars(){
     if(SUPA_READY){
-      const { data, error } = await SUPA
-        .from('cars').select('*').eq('status','active')
-        .order('created_at',{ascending:false});
-      if(error){ console.warn('Supabase error:',error); return []; }
-      return data || [];
+      try {
+        const { data, error } = await SUPA
+          .from('cars').select('*').eq('status','active')
+          .order('created_at',{ascending:false});
+        if(error){ console.warn('Supabase error:', JSON.stringify(error)); return []; }
+        return data || [];
+      } catch(e){ console.warn('Supabase fetch failed:', e.message); return []; }
     } else {
       try {
         const stored = JSON.parse(localStorage.getItem(STORE));
@@ -1126,6 +1128,7 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   }
 
   async function renderInventory(){
+    try {
     const grid = document.getElementById('invGrid');
     const countEl = document.getElementById('stockCount');
     if(!grid) return;
@@ -1190,9 +1193,15 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
     });
   }
 
+      } catch(e){ 
+      console.warn('Inventory render error:', e.message);
+      const g = document.getElementById('invGrid');
+      if(g) g.innerHTML = '<div style="padding:3rem;text-align:center;color:var(--muted);font-size:.82rem;grid-column:1/-1">Inventário temporariamente indisponível.</div>';
+    }
+  }
   window.pubRefreshInventory = renderInventory;
 
-  document.addEventListener('DOMContentLoaded',()=>{ initFilters(); renderInventory(); });
+  document.addEventListener('DOMContentLoaded',()=>{ try{ initFilters(); renderInventory(); } catch(e){ console.warn('Init error:',e.message); } });
 })();
 
 </script>
@@ -1255,9 +1264,11 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
   async function dbLoad(){
     if(SUPA_READY){
-      const {data,error} = await SUPA.from('cars').select('*').order('created_at',{ascending:false});
-      if(error){ console.warn(error); return []; }
-      return data||[];
+      try {
+        const {data,error} = await SUPA.from('cars').select('*').order('created_at',{ascending:false});
+        if(error){ console.warn('dbLoad error:', JSON.stringify(error)); return []; }
+        return data || [];
+      } catch(e){ console.warn('dbLoad failed:', e.message); return []; }
     }
     try{ return JSON.parse(localStorage.getItem(STORE))||[]; } catch{ return []; }
   }
