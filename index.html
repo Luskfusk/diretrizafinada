@@ -689,12 +689,7 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
       </div>
     </div>
     <div class="reveal reveal-delay-2">
-      <form class="contact-form" id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-        <!-- Hidden fields for Formspree -->
-        <input type="hidden" name="_subject" value="Novo contacto — Diretriz Afinada">
-        <input type="hidden" name="_replyto" value="">
-        <input type="hidden" name="_next" value="">
-        <input type="text" name="_gotcha" style="display:none">
+      <form class="contact-form" id="contactForm">
 
         <div class="form-row">
           <div class="form-group">
@@ -827,7 +822,7 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
 });
 
 // FORM
-// Contact form — Formspree async submit
+
 const contactForm = document.getElementById('contactForm');
 if(contactForm){
   contactForm.addEventListener('submit', async function(e){
@@ -1103,8 +1098,8 @@ if(contactForm){
 /* ═══════════════════════════════════════════════════
    SUPABASE CONFIG — fill in your values
 ═══════════════════════════════════════════════════ */
-const SUPA_URL  = 'YOUR_SUPABASE_URL';   // ex: https://xxxx.supabase.co
-const SUPA_KEY  = 'YOUR_SUPABASE_ANON_KEY';
+const SUPA_URL  = 'https://vgdxntmbrkdquaurqtil.supabase.co';   // ex: https://xxxx.supabase.co
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZHhudG1icmtkcXVhdXJxdGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTExNjUsImV4cCI6MjA5NTc4NzE2NX0.ZVG5gThQ9qEQZrdZY9Ib70v-JqRCrl-VSRNyLQOZxWU';
 const SUPA_READY = SUPA_URL !== 'YOUR_SUPABASE_URL' && SUPA_URL.startsWith('https://');
 const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
@@ -1551,6 +1546,52 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   },500);
 })();
 
+
+// Contact form — Resend via Supabase Edge Function
+const EDGE_FN_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co/functions/v1/send-contact';
+
+const contactForm = document.getElementById('contactForm');
+if(contactForm){
+  contactForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const successEl = document.getElementById('formSuccess');
+    const errorEl   = document.getElementById('formError');
+    successEl.style.display = 'none';
+    errorEl.style.display   = 'none';
+    btn.textContent = 'A enviar...';
+    btn.disabled = true;
+
+    const data = {
+      nome:     contactForm.querySelector('[name="nome"]').value,
+      email:    contactForm.querySelector('[name="email"]').value,
+      telefone: contactForm.querySelector('[name="telefone"]').value || '',
+      veiculo:  contactForm.querySelector('[name="veiculo"]').value  || '',
+      mensagem: contactForm.querySelector('[name="mensagem"]').value || '',
+    };
+
+    try {
+      const res = await fetch(EDGE_FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if(res.ok){
+        successEl.style.display = 'block';
+        contactForm.reset();
+      } else {
+        const err = await res.json().catch(()=>({}));
+        errorEl.textContent = '✗ ' + (err.error || 'Erro ao enviar. Tente novamente.');
+        errorEl.style.display = 'block';
+      }
+    } catch {
+      errorEl.textContent = '✗ Erro de ligação. Verifique a sua internet.';
+      errorEl.style.display = 'block';
+    }
+    btn.textContent = 'Enviar Solicitação';
+    btn.disabled = false;
+  });
+}
 </script>
 </body>
 </html>
