@@ -4,7 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diretriz Afinada | Automóveis de Luxo</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.addEventListener('error', function(e){
+  if(e.message && e.message !== 'Script error.'){
+    console.warn('Global error:', e.message, 'at', e.filename, e.lineno);
+  }
+});
+window.addEventListener('unhandledrejection', function(e){
+  console.warn('Unhandled promise rejection:', e.reason);
+  e.preventDefault();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window._supabaseLoadFailed=true" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -502,7 +513,15 @@ footer{border-top:1px solid var(--border);padding:3rem;display:grid;grid-templat
 
 </style>
 </head>
-<body>
+<body><script>
+window.addEventListener('error', function(e){
+  console.log('Global error:', e.message, e.filename, e.lineno);
+});
+window.addEventListener('unhandledrejection', function(e){
+  console.log('Unhandled promise rejection:', e.reason);
+  e.preventDefault();
+});
+</script>
 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
@@ -1100,13 +1119,23 @@ if(contactForm){
 ═══════════════════════════════════════════════════ */
 const SUPA_URL  = 'https://vgdxntmbrkdquaurqtil.supabase.co';   // ex: https://xxxx.supabase.co
 const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZHhudG1icmtkcXVhdXJxdGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTExNjUsImV4cCI6MjA5NTc4NzE2NX0.ZVG5gThQ9qEQZrdZY9Ib70v-JqRCrl-VSRNyLQOZxWU';
-const SUPA_READY = SUPA_URL !== 'YOUR_SUPABASE_URL' && SUPA_URL.startsWith('https://');
-const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
+const SUPA_SDK_OK = (function(){ try{ return typeof supabase !== 'undefined' && typeof supabase.createClient === 'function'; }catch(e){ return false; } })();
+const SUPA_READY = SUPA_SDK_OK && SUPA_URL !== 'YOUR_SUPABASE_URL' && SUPA_URL.startsWith('https://');
+let SUPA = null;
+try {
+  if(SUPA_READY){
+    SUPA = supabase.createClient(SUPA_URL, SUPA_KEY);
+    console.log('Supabase connected');
+  }
+} catch(e) {
+  console.warn('Supabase init failed:', e.message);
+  SUPA = null;
+}
 
 /* ═══════════════════════════════════════════════════
    PUBLIC INVENTORY — reads from Supabase or localStorage
 ═══════════════════════════════════════════════════ */
-(function(){
+try { (function(){
   const STORE = 'da_inventory';
 
   let pubFilter = 'all';
@@ -1137,7 +1166,7 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
       const filtered = pubFilter==='all' ? all : all.filter(c=>c.category===pubFilter);
       if(countEl) countEl.textContent = all.length;
       if(!filtered.length){
-        grid.innerHTML = '<div style="padding:4rem 2rem;text-align:center;grid-column:1/-1"><div style="font-family:var(--font-display);font-size:2rem;letter-spacing:.05em;color:var(--border2);margin-bottom:.8rem">INVENTÁRIO</div><p style="font-size:.82rem;color:var(--muted)">Nenhum veículo disponível de momento.<br>Consulte-nos para disponibilidade.</p><a href='#contact' style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;border:1px solid var(--border2);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--off);text-decoration:none">Contactar</a></div>';
+        grid.innerHTML = '<div style="padding:4rem 2rem;text-align:center;grid-column:1/-1"><div style="font-family:var(--font-display);font-size:2rem;letter-spacing:.05em;color:var(--border2);margin-bottom:.8rem">INVENTÁRIO</div><p style="font-size:.82rem;color:var(--muted)">Nenhum veículo disponível de momento.<br>Consulte-nos para disponibilidade.</p><a href="#contact" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;padding:.7rem 1.6rem;border:1px solid var(--border2);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--off);text-decoration:none">Contactar</a></div>';
         return;
       }
       const delays=['','reveal-delay-1','reveal-delay-2','reveal-delay-3'];
@@ -1176,6 +1205,7 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
   document.addEventListener('DOMContentLoaded',()=>{ try{ initFilters(); renderInventory(); } catch(e){ console.warn('Init error:',e.message); } });
 })();
+} catch(e){ console.warn('Script error:',e.message); }
 
 </script>
 <script>
@@ -1183,7 +1213,7 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 /* ════════════════════════════════════════════════════
    ADMIN JS — Supabase CRUD + Auth
 ════════════════════════════════════════════════════ */
-(function(){
+try { (function(){
   const CREDS = { user:'adminafinada', pass:'diretrizviana' };
   const SESSION_KEY = 'da_admin_session';
 
@@ -1320,63 +1350,62 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
   // ── Table ──────────────────────────────────────────────────
   window.admRenderTable = async function(){
-    try {
     document.getElementById('admTableContainer').innerHTML='<div style="padding:2rem;text-align:center;color:#555;font-size:.8rem">A carregar...</div>';
-    const all = await dbLoad();
-    const list = all.filter(c=>{
-      const mf=admFilter==='all'||c.category===admFilter;
-      const q=admSearch.toLowerCase();
-      const ms=!q||`${c.brand} ${c.model} ${c.year} ${c.price}`.toLowerCase().includes(q);
-      return mf&&ms;
-    });
-    const total=list.length;
-    const pages=Math.max(1,Math.ceil(total/ADM_PER));
-    admPage=Math.min(admPage,pages);
-    const slice=list.slice((admPage-1)*ADM_PER,admPage*ADM_PER);
-    const slbl={active:'Disponível',sold:'Vendido',reserved:'Reservado'
-    } catch(e){ console.warn('Table render error:',e); }
-  };
-    const sdot={active:'adm-s-active',sold:'adm-s-sold',reserved:'adm-s-reserved'};
-
-    let html='';
-    if(!slice.length){
-      html=`<div class="adm-empty"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="adm-empty-t">Nenhum veículo</div><div class="adm-empty-s">${admSearch?'Tente outra pesquisa':'Clique em Novo Veículo'}</div></div>`;
-    } else {
-      const rows=slice.map(c=>{
-        const imgSrc=c.img_url||c.img||'';
-        return `<tr>
-          <td><div class="adm-car-cell">
-            ${imgSrc?`<img class="adm-thumb" src="${imgSrc}" alt="">`:`<div class="adm-thumb-ph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>`}
-            <div><div class="adm-car-name">${c.brand} ${c.model}</div><div class="adm-car-sub">${c.sub||c.year||''}</div></div>
-          </div></td>
-          <td><span class="adm-pill">${c.category||'—'}</span></td>
-          <td style="font-size:.72rem;color:#555">${c.year||'—'}</td>
-          <td style="font-size:.72rem">${c.km||'—'}</td>
-          <td style="font-size:.75rem">${c.cv?c.cv+' CV':'—'}</td>
-          <td><div class="adm-price">€ ${c.price||'—'}</div></td>
-          <td><span class="adm-sdot ${sdot[c.status]||'adm-s-active'}"></span><span style="font-size:.7rem;color:#ADADAD">${slbl[c.status]||'Disponível'}</span></td>
-          <td><div class="adm-actions">
-            ${c.url?`<a href="${c.url}" target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>`:''}
-            <button class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon" onclick="admEditCar('${c.id}')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-            <button class="adm-btn adm-btn-danger adm-btn-sm adm-btn-icon" onclick="admDeleteCar('${c.id}')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
-          </div></td></tr>`;
-      }).join('');
-      html=`<table class="adm-table"><thead><tr><th>Veículo</th><th>Cat.</th><th>Ano</th><th>KM</th><th>Potência</th><th>Preço</th><th>Estado</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+    try {
+      const all = await dbLoad();
+      const list = all.filter(c=>{
+        const mf=admFilter==='all'||c.category===admFilter;
+        const q=admSearch.toLowerCase();
+        const ms=!q||`${c.brand} ${c.model} ${c.year} ${c.price}`.toLowerCase().includes(q);
+        return mf&&ms;
+      });
+      const total=list.length;
+      const pages=Math.max(1,Math.ceil(total/ADM_PER));
+      admPage=Math.min(admPage,pages);
+      const slice=list.slice((admPage-1)*ADM_PER,admPage*ADM_PER);
+      const slbl={active:'Disponível',sold:'Vendido',reserved:'Reservado'};
+      const sdot={active:'adm-s-active',sold:'adm-s-sold',reserved:'adm-s-reserved'};
+      let html='';
+      if(!slice.length){
+        html='<div class="adm-empty"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="adm-empty-t">Nenhum veículo</div><div class="adm-empty-s">'+(admSearch?'Tente outra pesquisa':'Clique em Novo Veículo')+'</div></div>';
+      } else {
+        const rows=slice.map(c=>{
+          const imgSrc=c.img_url||c.img||'';
+          return '<tr>'
+            +'<td><div class="adm-car-cell">'
+            +(imgSrc?'<img class="adm-thumb" src="'+imgSrc+'" alt="">':'<div class="adm-thumb-ph"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>')
+            +'<div><div class="adm-car-name">'+c.brand+' '+c.model+'</div><div class="adm-car-sub">'+(c.sub||c.year||'')+'</div></div>'
+            +'</div></td>'
+            +'<td><span class="adm-pill">'+(c.category||'—')+'</span></td>'
+            +'<td style="font-size:.72rem;color:#555">'+(c.year||'—')+'</td>'
+            +'<td style="font-size:.72rem">'+(c.km||'—')+'</td>'
+            +'<td style="font-size:.75rem">'+(c.cv?c.cv+' CV':'—')+'</td>'
+            +'<td><div class="adm-price">€ '+(c.price||'—')+'</div></td>'
+            +'<td><span class="adm-sdot '+(sdot[c.status]||'adm-s-active')+'"></span><span style="font-size:.7rem;color:#ADADAD">'+(slbl[c.status]||'Disponível')+'</span></td>'
+            +'<td><div class="adm-actions">'
+            +(c.url?'<a href="'+c.url+'" target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>':'')
+            +'<button class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon" onclick="admEditCar(''+c.id+'')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+            +'<button class="adm-btn adm-btn-danger adm-btn-sm adm-btn-icon" onclick="admDeleteCar(''+c.id+'')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>'
+            +'</div></td></tr>';
+        }).join('');
+        html='<table class="adm-table"><thead><tr><th>Veículo</th><th>Cat.</th><th>Ano</th><th>KM</th><th>Potência</th><th>Preço</th><th>Estado</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+      }
+      document.getElementById('admTableContainer').innerHTML=html;
+      let pg='';
+      if(total>ADM_PER){
+        pg='<span>'+(admPage-1)*ADM_PER+1+'–'+Math.min(admPage*ADM_PER,total)+' de '+total+'</span><div class="adm-pbtns">';
+        pg+='<button class="adm-pbtn" onclick="admGoPage('+(admPage-1)+')" '+(admPage<=1?'disabled':'')+'><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>';
+        for(let i=1;i<=pages;i++) pg+='<button class="adm-pbtn '+(i===admPage?'adm-pcur':'')+'" onclick="admGoPage('+i+')">'+i+'</button>';
+        pg+='<button class="adm-pbtn" onclick="admGoPage('+(admPage+1)+')" '+(admPage>=pages?'disabled':'')+'><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button></div>';
+      } else {
+        pg='<span>'+total+' veículo'+(total!==1?'s':'')+'</span><div></div>';
+      }
+      document.getElementById('admPagination').innerHTML=pg;
+    } catch(e){
+      console.warn('Table render error:',e.message||e);
+      document.getElementById('admTableContainer').innerHTML='<div class="adm-empty"><div class="adm-empty-t">Erro ao carregar</div><div class="adm-empty-s">'+e.message+'</div></div>';
     }
-    document.getElementById('admTableContainer').innerHTML=html;
-
-    let pg='';
-    if(total>ADM_PER){
-      pg=`<span>${(admPage-1)*ADM_PER+1}–${Math.min(admPage*ADM_PER,total)} de ${total}</span><div class="adm-pbtns">`;
-      pg+=`<button class="adm-pbtn" onclick="admGoPage(${admPage-1})" ${admPage<=1?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
-      for(let i=1;i<=pages;i++) pg+=`<button class="adm-pbtn ${i===admPage?'adm-pcur':''}" onclick="admGoPage(${i})">${i}</button>`;
-      pg+=`<button class="adm-pbtn" onclick="admGoPage(${admPage+1})" ${admPage>=pages?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button></div>`;
-    } else {
-      pg=`<span>${total} veículo${total!==1?'s':''}</span><div></div>`;
-    }
-    document.getElementById('admPagination').innerHTML=pg;
   };
-
   window.admGoPage=p=>{admPage=p;admRenderTable();};
   window.admFilterCars=()=>{admSearch=document.getElementById('admSearchInput').value;admPage=1;admRenderTable();};
   window.admSetFilter=(f,el)=>{admFilter=f;admPage=1;document.querySelectorAll('.adm-ftab').forEach(t=>t.classList.remove('adm-ton'));el.classList.add('adm-ton');admRenderTable();};
@@ -1590,6 +1619,7 @@ if(contactForm){
     btn.textContent = 'Enviar Solicitação';
     btn.disabled = false;
   });
+}
 }
 </script>
 </body>
