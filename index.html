@@ -1212,10 +1212,14 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
   window.closeLogin = function closeLogin(){ document.getElementById('loginOverlay').classList.remove('open'); }
 
   window.openAdmin = async function openAdmin(){
-    document.getElementById('adminLayer').classList.add('open');
-    document.body.style.overflow='hidden';
-    await admRenderStats();
-    await admRenderTable();
+    try {
+      document.getElementById('adminLayer').classList.add('open');
+      document.body.style.overflow='hidden';
+      await admRenderStats().catch(function(e){ console.warn('Stats error:',e); });
+      await admRenderTable().catch(function(e){ console.warn('Table error:',e); });
+    } catch(e) {
+      console.error('openAdmin failed:',e);
+    }
   }
 
   window.admDoLogin = function(){
@@ -1225,7 +1229,7 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
     if(u===CREDS.user && p===CREDS.pass){
       try{ sessionStorage.setItem(SESSION_KEY,'1'); }catch{} try{ localStorage.setItem(SESSION_KEY,'1'); }catch{}
       err.classList.remove('show');
-      closeLogin(); openAdmin();
+      closeLogin(); openAdmin().catch(function(e){ console.error('Admin error:',e); });
     } else {
       err.classList.add('show');
       document.getElementById('lPass').value='';
@@ -1296,23 +1300,27 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
 
   // ── Stats ──────────────────────────────────────────────────
   window.admRenderStats = async function(){
+    try {
     const cars = await dbLoad();
     const total=cars.length;
     const active=cars.filter(c=>c.status==='active').length;
     const sold=cars.filter(c=>c.status==='sold').length;
     const reserved=cars.filter(c=>c.status==='reserved').length;
     const val=cars.filter(c=>c.status==='active').reduce((s,c)=>s+(parseFloat((c.price||'0').replace(/[^\d.]/g,''))||0),0);
-    document.getElementById('admStats').innerHTML=`
-      <div class="adm-stat"><div class="adm-stat-lbl">Total</div><div class="adm-stat-val">${total}</div><div class="adm-stat-sub">veículos</div></div>
-      <div class="adm-stat"><div class="adm-stat-lbl">Disponíveis</div><div class="adm-stat-val">${active}</div><div class="adm-badge adm-badge-green">● Activos</div></div>
-      <div class="adm-stat"><div class="adm-stat-lbl">Reserv. / Vendidos</div><div class="adm-stat-val">${reserved+sold}</div><div class="adm-badge adm-badge-amber">● ${reserved} res · ${sold} vend</div></div>
-      <div class="adm-stat"><div class="adm-stat-lbl">Valor em Stock</div><div class="adm-stat-val" style="font-size:1.3rem">${val>0?'€ '+val.toLocaleString('pt-PT'):'—'}</div><div class="adm-stat-sub">disponíveis</div></div>`;
+    document.getElementById('admStats').innerHTML =
+      '<div class="adm-stat"><div class="adm-stat-lbl">Total</div><div class="adm-stat-val">'+total+'</div><div class="adm-stat-sub">veículos</div></div>'
+      +'<div class="adm-stat"><div class="adm-stat-lbl">Disponíveis</div><div class="adm-stat-val">'+active+'</div><div class="adm-badge adm-badge-green">● Activos</div></div>'
+      +'<div class="adm-stat"><div class="adm-stat-lbl">Reserv. / Vendidos</div><div class="adm-stat-val">'+(reserved+sold)+'</div><div class="adm-badge adm-badge-amber">● '+reserved+' res · '+sold+' vend</div></div>'
+      +'<div class="adm-stat"><div class="adm-stat-lbl">Valor em Stock</div><div class="adm-stat-val" style="font-size:1.3rem">'+(val>0?'€ '+val.toLocaleString('pt-PT'):'—')+'</div><div class="adm-stat-sub">disponíveis</div></div>';
     const mode = SUPA_READY ? '🟢 Supabase' : '🟡 Local';
     document.getElementById('admPageTitle').title = `Modo: ${mode}`;
+  
+    } catch(e){ console.warn('Stats render error:',e); }
   };
 
   // ── Table ──────────────────────────────────────────────────
   window.admRenderTable = async function(){
+    try {
     document.getElementById('admTableContainer').innerHTML='<div style="padding:2rem;text-align:center;color:#555;font-size:.8rem">A carregar...</div>';
     const all = await dbLoad();
     const list = all.filter(c=>{
@@ -1325,7 +1333,9 @@ const SUPA = SUPA_READY ? supabase.createClient(SUPA_URL, SUPA_KEY) : null;
     const pages=Math.max(1,Math.ceil(total/ADM_PER));
     admPage=Math.min(admPage,pages);
     const slice=list.slice((admPage-1)*ADM_PER,admPage*ADM_PER);
-    const slbl={active:'Disponível',sold:'Vendido',reserved:'Reservado'};
+    const slbl={active:'Disponível',sold:'Vendido',reserved:'Reservado'
+    } catch(e){ console.warn('Table render error:',e); }
+  };
     const sdot={active:'adm-s-active',sold:'adm-s-sold',reserved:'adm-s-reserved'};
 
     let html='';
