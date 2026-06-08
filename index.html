@@ -2852,6 +2852,31 @@
 </body>
 
 </html>
+<script>
+  // 1. Configuration
+  const EDGE_FN_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co/functions/v1/resend-email';
+  const SUPABASE_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZHhudG1icmtkcXVhdXJxdGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTExNjUsImV4cCI6MjA5NTc4NzE2NX0.ZVG5gThQ9qEQZrdZY9Ib70v-JqRCrl-VSRNyLQOZxWU';
+
+  // 2. Initialize Supabase
+  if (typeof supabase !== 'undefined') {
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("Supabase client initialized.");
+  }
+
+  // 3. Define the function BEFORE calling it
+  async function initFilters() {
+    console.log("Filters initializing...");
+    // Your existing inventory fetching logic goes here
+  }
+
+  // 4. Wait for the page to fully load before initializing everything
+  window.addEventListener('DOMContentLoaded', () => {
+    if (typeof initFilters === 'function') {
+      initFilters();
+    }
+  });
+</script>
 
 <body>
   <script>
