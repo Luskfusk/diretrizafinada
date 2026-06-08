@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Bright Form Beacon - premium static landing page ready for GitHub Pages." />
+  <title>Bright Form Beacon</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #1d4ed8;
+      --primary-dark: #153ea3;
+      --border: #e5e7eb;
+      --shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
+      --radius: 20px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .container {
+      width: min(var(--max), calc(100vw - 40px));
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 84px 0;
+    }
+
+    .hero {
+      padding: 28px 0 84px;
+      background:
+        radial-gradient(circle at top left, rgba(29, 78, 216, 0.14), transparent 35%),
+        linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .logo {
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 32px;
+      align-items: center;
+      margin-top: 40px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 5vw, 5rem);
+      line-height: 1.02;
+      margin: 0 0 18px;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      font-size: 1.12rem;
+      max-width: 58ch;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-weight: 700;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(29, 78, 216, 0.22);
+    }
+
+    .btn-primary:hover { background: var(--primary-dark); }
+
+    .btn-secondary {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .stats {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card .mock {
+      height: 420px;
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(29, 78, 216, 0.12), rgba(17, 24, 39, 0.04)),
+        linear-gradient(180deg, #fff, #eef2ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .section-head {
+      max-width: 720px;
+      margin-bottom: 28px;
+    }
+
+    .section-head h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .form {
+      display: grid;
+      gap: 14px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea { min-height: 150px; resize: vertical; }
+
+    .footer {
+      padding: 30px 0 50px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .about-grid,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <nav class="nav">
+        <div class="logo">Bright Form Beacon</div>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Premium static landing page • GitHub Pages ready</div>
+          <h1>Build a clean, modern web presence that feels professional from the first second.</h1>
+          <p class="lead">
+            This template gives you a polished starting point for a Lovable-style project, redesigned as a static HTML site you can upload to GitHub.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#contact">Start project</a>
+            <a class="btn btn-secondary" href="#features">See features</a>
+          </div>
+          <div class="stats">
+            <span>Fast loading</span>
+            <span>Responsive layout</span>
+            <span>Easy to edit</span>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="mock">
+            <div>
+              <strong>Visual placeholder</strong><br />
+              Replace this area with your screenshot, product image, or brand illustration.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2>Core features</h2>
+          <p>A simple structure that works well for a landing page, service page, or product showcase.</p>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <h3>Clear messaging</h3>
+            <p>Lead with one strong headline and one main call to action so visitors know what to do immediately.</p>
+          </article>
+          <article class="card">
+            <h3>Flexible layout</h3>
+            <p>Use the same structure for services, lead generation, or a portfolio-style presentation.</p>
+          </article>
+          <article class="card">
+            <h3>Static hosting</h3>
+            <p>Works as a root <code>index.html</code> for GitHub Pages and other static hosts.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="container about-grid">
+        <div class="section-head">
+          <h2>About the project</h2>
+          <p>This version is designed to feel premium, minimal, and trustworthy, similar to the style you often prefer for web and automotive projects [cite:21][cite:22].</p>
+        </div>
+        <div class="card">
+          <p>
+            You can swap in your own branding, colors, copy, and imagery without changing the overall structure.
+            If you later want this turned into a WordPress layout or a multi-page site, the same section order can be reused.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-head">
+          <h2>Contact</h2>
+          <p>Add your own form handler, email service, or WhatsApp contact button here.</p>
+        </div>
+
+        <div class="card">
+          <form class="form">
+            <input type="text" name="name" placeholder="Your name" />
+            <input type="email" name="email" placeholder="Your email" />
+            <textarea name="message" placeholder="Tell us about your project"></textarea>
+            <button class="btn btn-primary" type="submit">Send message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 Bright Form Beacon. Static HTML template for GitHub Pages.</p>
+    </div>
+  </footer>
+</body>
+</html>
