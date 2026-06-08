@@ -708,7 +708,7 @@ window.addEventListener('unhandledrejection', function(e){
       </div>
     </div>
     <div class="reveal reveal-delay-2">
-      <form class="contact-form" id="contactForm">
+      <form class="contact-form" id="contactForm" onsubmit="return false;">
 
         <div class="form-row">
           <div class="form-group">
@@ -842,38 +842,7 @@ document.querySelectorAll('.filter-btn').forEach(btn=>{
 
 // FORM
 
-const contactForm = document.getElementById('contactForm');
-if(contactForm){
-  contactForm.addEventListener('submit', async function(e){
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    const successEl = document.getElementById('formSuccess');
-    const errorEl = document.getElementById('formError');
-    successEl.style.display = 'none';
-    errorEl.style.display = 'none';
-    btn.textContent = 'A enviar...';
-    btn.disabled = true;
-    try {
-      const res = await fetch(contactForm.action, {
-        method: 'POST',
-        body: new FormData(contactForm),
-        headers: { 'Accept': 'application/json' }
-      });
-      if(res.ok){
-        successEl.style.display = 'block';
-        contactForm.reset();
-      } else {
-        const data = await res.json();
-        errorEl.textContent = data.errors ? data.errors.map(e=>e.message).join(', ') : 'Erro ao enviar.';
-        errorEl.style.display = 'block';
-      }
-    } catch {
-      errorEl.style.display = 'block';
-    }
-    btn.textContent = 'Enviar Solicitação';
-    btn.disabled = false;
-  });
-}
+
 
 
 
