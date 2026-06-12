@@ -2848,21 +2848,6 @@
   } else {
     console.error("Supabase SDK failed to load.");
   }
-</script>
-</body>
-
-</html>
-<script>
-  // 1. Configuration
-  const EDGE_FN_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co/functions/v1/resend-email';
-  const SUPABASE_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnZHhudG1icmtkcXVhdXJxdGlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTExNjUsImV4cCI6MjA5NTc4NzE2NX0.ZVG5gThQ9qEQZrdZY9Ib70v-JqRCrl-VSRNyLQOZxWU';
-
-  // 2. Initialize Supabase
-  if (typeof supabase !== 'undefined') {
-    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("Supabase client initialized.");
-  }
 
   // 3. Define the function BEFORE calling it
   async function initFilters() {
@@ -3588,7 +3573,7 @@
             <span>JPG, PNG, WEBP · Máx 5MB</span>
           </div>
           <div id="admImgPreviewWrap" style="display:none" class="adm-preview-wrap">
-            <img id="admImgPreview" class="adm-preview" src="" alt="">
+            <img id="admImgPreview" class="adm-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
             <div class="adm-remove-img" onclick="admRemoveImg()"><svg viewBox="0 0 24 24">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg></div>
@@ -4209,7 +4194,7 @@
 
 
       // Contact form — Resend via Supabase Edge Function
-      const EDGE_FN_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co/functions/v1/send-contact';
+      const EDGE_FN_URL = 'https://vgdxntmbrkdquaurqtil.supabase.co/functions/v1/resend-email';
 
       const contactForm = document.getElementById('contactForm');
       if (contactForm) {
@@ -4272,5 +4257,3 @@
 </body>
 
 </html>
-<script>
-</script>
