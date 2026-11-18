@@ -3838,10 +3838,18 @@
     ════════════════════════════════════════════════════ */
     try {
       (function () {
-        const CREDS = { user: 'adminafinada', pass: 'diretrizviana' };
+        // Admin credentials are verified server-side by the `admin-auth` Supabase
+        // Edge Function. No username or password is stored in this file.
         const SESSION_KEY = 'da_admin_session';
 
-        function isLoggedIn() { try { return sessionStorage.getItem(SESSION_KEY) === '1' || localStorage.getItem(SESSION_KEY) === '1'; } catch { return false; } }
+        function isLoggedIn() {
+          try {
+            const t = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+            if (!t) return false;
+            const exp = Number(String(t).split('.')[0]);
+            return Number.isFinite(exp) && exp > Date.now();
+          } catch { return false; }
+        }
 
         function checkAdminTrigger() {
           if (location.hash === '#admin') {
@@ -3876,19 +3884,27 @@
           }
         }
 
-        window.admDoLogin = function () {
+        window.admDoLogin = async function () {
           const u = document.getElementById('lUser').value.trim();
           const p = document.getElementById('lPass').value;
           const err = document.getElementById('loginErr');
-          if (u === CREDS.user && p === CREDS.pass) {
-            try { sessionStorage.setItem(SESSION_KEY, '1'); } catch { } try { localStorage.setItem(SESSION_KEY, '1'); } catch { }
-            err.classList.remove('show');
-            closeLogin(); openAdmin().catch(function (e) { console.error('Admin error:', e); });
-          } else {
-            err.classList.add('show');
-            document.getElementById('lPass').value = '';
-            document.getElementById('lPass').focus();
-          }
+          err.classList.remove('show');
+          try {
+            const res = await fetch(SUPA_URL + '/functions/v1/admin-auth', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+              body: JSON.stringify({ username: u, password: p })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data && data.token) {
+              try { sessionStorage.setItem(SESSION_KEY, data.token); } catch { } try { localStorage.setItem(SESSION_KEY, data.token); } catch { }
+              closeLogin(); openAdmin().catch(function (e) { console.error('Admin error:', e); });
+              return;
+            }
+          } catch (e) { console.warn('Login request failed:', e.message); }
+          err.classList.add('show');
+          document.getElementById('lPass').value = '';
+          document.getElementById('lPass').focus();
         };
         ['lUser', 'lPass'].forEach(id => document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') window.admDoLogin(); }));
 
@@ -4017,8 +4033,8 @@
                   + '<td><span class="adm-sdot ' + (sdot[c.status] || 'adm-s-active') + '"></span><span style="font-size:.7rem;color:#ADADAD">' + (slbl[c.status] || 'Disponível') + '</span></td>'
                   + '<td><div class="adm-actions">'
                   + (c.url ? '<a href="' + c.url + '" target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>' : '')
-                  + '<button class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon" onclick="admEditCar(''+c.id+'')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
-                    + '<button class="adm-btn adm-btn-danger adm-btn-sm adm-btn-icon" onclick="admDeleteCar(''+c.id+'')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>'
+                  + '<button class="adm-btn adm-btn-ghost adm-btn-sm adm-btn-icon" onclick="admEditCar(\''+c.id+'\')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'
+                    + '<button class="adm-btn adm-btn-danger adm-btn-sm adm-btn-icon" onclick="admDeleteCar(\''+c.id+'\')"><svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" fill="none" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>'
                       + '</div></td></tr>';
               }).join('');
               html = '<table class="adm-table"><thead><tr><th>Veículo</th><th>Cat.</th><th>Ano</th><th>KM</th><th>Potência</th><th>Preço</th><th>Estado</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
@@ -4267,7 +4283,7 @@
           btn.disabled = false;
         });
       }
-    }
+    } catch (e) { console.warn('Script error:', e.message); }
   </script>
 </body>
 
